@@ -4,7 +4,7 @@ Fs = 8000;
 
 F = MakeErbCFs(50,Fs,size);
 for x = 0:9
-    files = dir(sprintf('/home/esther/Documents/MATLAB/project2/recordings/%d_*.wav', x));
+    files = dir(sprintf('/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/free-spoken-digit-dataset-master/free-spoken-digit-dataset-master/recordings/%d_*.wav', x));
     range = 1:length(files);
     labels = repelem(x, length(files));
     for i = range
@@ -12,7 +12,7 @@ for x = 0:9
         audio = audioread(join([files(i).folder, "/", files(i).name], ""));
         coch = gammatoneFast(audio',F,Fs); 
         %imagesc(coch, 'CDataMapping','scaled')
-        writematrix(coch, sprintf('digit_%d_%d.csv',x, i));
+        save(sprintf('../cochleagrams/digit_%d_%d.mat',x, i), 'coch');
     end
 end
 
