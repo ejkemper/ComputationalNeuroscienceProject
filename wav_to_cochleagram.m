@@ -9,7 +9,8 @@ for x = 0:9
     labels = repelem(x, length(files));
     for i = range
         fprintf('digit %d, file %d/%d\n',x,  i, length(files));
-        audio = audioread(join([files(i).folder, "/", files(i).name], ""));
+        audio = (audioread(join([files(i).folder, "/", files(i).name], "")));
+        audio = 100.*audio
         coch = gammatoneFast(audio',F,Fs); 
         %imagesc(coch, 'CDataMapping','scaled')
         save(sprintf('../cochleagrams/digit_%d_%d.mat',x, i), 'coch');
