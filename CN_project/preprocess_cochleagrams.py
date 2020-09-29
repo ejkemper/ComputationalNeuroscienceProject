@@ -12,31 +12,36 @@ def load_filenames(dir):
     return filenames
 
 def zero_pad(filenames, dir, outdir):
-    longest_file = loadmat(join(dir, "digit_9_209"))
-    length = longest_file["coch"].shape[1]
+    longest_file = np.load(join(dir, "9_2908.npy"))
+    length = longest_file.shape[1]
 
     for f in filenames:
-        file = loadmat(join(dir, f))
+        file = np.load(join(dir, f))
 
-        curr_length = file["coch"].shape[1]
+        curr_length = file.shape[1]
         pad_length = length - curr_length
         rand = np.random.random()
         pad_left = int(np.floor((pad_length/2) * rand))
         pad_right = int(pad_length - pad_left)
-        new_coch = np.pad(file["coch"], [[0, 0], [pad_left, pad_right]])
+        new_coch = np.pad(file, [[0, 0], [pad_left, pad_right]])
 
-        new_file = downsample(new_coch)
+        downs_coch = downsample(new_coch)
         #print(new_file['coch'].shape)
-        new_file = {'coch': new_file}
-        savemat(join(outdir, f), new_file, do_compression = True)
+        np.save(join(outdir, f), downs_coch)
 
 def downsample(file):
-    image = cv2.resize(file, dsize=(178,23))
+    image = cv2.resize(file, dsize=(53, 15))
     return image
+
+def visualize_coch(outdir):
+    coch = np.load(join(outdir, '0_0.npy'))
+    plt.imshow(coch, aspect='auto', origin='lower')
+    plt.show()
 
 if __name__ == '__main__':
     dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/cochleagrams"
     outdir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/output"
-    filenames = load_filenames(dir)
-    zero_pad(filenames, dir, outdir)
+    #filenames = load_filenames(dir)
+    #zero_pad(filenames, dir, outdir)
+    visualize_coch(outdir)
     print('test')

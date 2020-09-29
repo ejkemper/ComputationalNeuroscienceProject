@@ -15,13 +15,13 @@ print(tf.__version__)
 #load data
 def load_data(dir):
     filenames = listdir(dir)
-    files = np.zeros((len(filenames), 23, 178))
+    files = np.zeros((len(filenames), 15, 53))
     labels = []
     for i in range(len(filenames)):
-        file = loadmat(join(dir, filenames[i]))
-        file = normalize_data(file['coch'])
+        file = np.load(join(dir, filenames[i]))
+        file = normalize_data(file)
         files[i] = file
-        label = int(filenames[i][6]) #to get the 6th character in the string, which gives the digit pronounced
+        label = int(filenames[i][0]) #to get the 6th character in the string, which gives the digit pronounced
         labels.append(label)
     labels = np.array(labels)
     return files, labels
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     train_data, test_data, train_label, test_label = train_test_split(data, labels, test_size=0.2, random_state=42)
 
     model = keras.Sequential([
-        keras.layers.Flatten(input_shape=(23, 178)),
+        keras.layers.Flatten(input_shape=(15, 53)),
         keras.layers.Dense(16, activation='sigmoid'),
         keras.layers.Dense(16, activation='sigmoid'),
         keras.layers.Dense(10)
