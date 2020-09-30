@@ -1,14 +1,11 @@
 import tensorflow as tf
 from tensorflow import keras
-from scipy.io import loadmat, savemat
 from os import listdir
 from os.path import dirname, join as join
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
 
 print(tf.__version__)
 
@@ -19,18 +16,11 @@ def load_data(dir):
     labels = []
     for i in range(len(filenames)):
         file = np.load(join(dir, filenames[i]))
-        file = normalize_data(file)
         files[i] = file
         label = int(filenames[i][0]) #to get the 6th character in the string, which gives the digit pronounced
         labels.append(label)
     labels = np.array(labels)
     return files, labels
-
-
-#normalize input
-def normalize_data(file):
-    file = (file - np.min(file)) / (np.max(file) - np.min(file))
-    return file
 
 # all_loss = params.history['loss']
 # all_acc = params.history['accuracy']
@@ -55,8 +45,9 @@ if __name__ == '__main__':
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
-    params = model.fit(train_data, train_label, epochs=100, shuffle=True)
+    params = model.fit(train_data, train_label, epochs=75, shuffle=True)
     test_loss, test_acc = model.evaluate(test_data, test_label, verbose=2)
+    params['history']['accuracy']
     print('test acc:', test_acc)
 
     print('help')

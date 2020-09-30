@@ -19,17 +19,20 @@ def load_data(dir):
         Fs.append(fs)
     return audios, labels, Fs
 
+
 def make_cochlea(audio, Fs, labels):
     cochleagrams = []
     idx = range(len(labels))
     for a, f, l, i in zip(audio, Fs, labels, idx):
         coch = cgram.human_cochleagram(a, f, hi_lim=4000) #Nyquist frequency: half of the sampling rate
-        np.save(join(outdir,f"{l}_{i}.npy"), coch)
+        np.save(join(outdir, f"{l}_{i}.npy"), coch)
+
 
 def visualize_coch():
     coch = np.load(join(outdir, '0_0.npy'))
     plt.imshow(coch, aspect='auto', origin='lower')
     plt.show()
+
 
 if __name__ == '__main__':
     dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/free-spoken-digit-dataset-master/free-spoken-digit-dataset-master/recordings"
