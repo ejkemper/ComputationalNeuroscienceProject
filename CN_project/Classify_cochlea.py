@@ -47,7 +47,6 @@ if __name__ == '__main__':
 
     params = model.fit(train_data, train_label, epochs=75, shuffle=True)
     test_loss, test_acc = model.evaluate(test_data, test_label, verbose=2)
-    params['history']['accuracy']
     print('test acc:', test_acc)
 
     print('help')

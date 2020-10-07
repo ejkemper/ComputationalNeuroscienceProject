@@ -10,9 +10,9 @@ print(tf.__version__)
 mnist =  keras.datasets.mnist
 (train_imgs, train_labs), (test_imgs, test_labs) = mnist.load_data()
 
-plt.figure()
-plt.imshow(train_imgs[0])
-plt.show()
+#plt.figure()
+#plt.imshow(train_imgs[0])
+#plt.show()
 
 train_imgs = train_imgs/255.0
 test_imgs = test_imgs/255.0

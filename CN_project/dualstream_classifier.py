@@ -87,6 +87,8 @@ if __name__ == '__main__':
 
     mnist = keras.datasets.mnist
     (train_data_mnist, train_label_mnist), (test_data_mnist, test_label_mnist) = mnist.load_data()
+    train_data_mnist = train_data_mnist / 255.0
+    test_data_mnist = test_data_mnist / 255.0
 
     model = DualStreamClassifier()
 
