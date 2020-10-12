@@ -63,6 +63,15 @@ class Autoencoder(Model):
         return decoded_im, decoded_coch
 
 
+def seperate_loss(y_true, y_pred):
+    MSE = tf.square(y_true - y_pred)
+    MSE = tf.reduce_mean(MSE, axis=[1, 2])
+    is_input = y_true != 0
+    importance = tf.math.reduce_any(is_input, axis=[1, 2])  # indicates whether any pixel in an instance is not equal to zero (meaning that it is a 'real' image
+    loss = tf.cast(importance, tf.float32) * MSE #makes sure that only loss is used when its from the desired input. We do not care about output from empty input
+    return loss
+
+
 def load_files(dir):
     filenames = listdir(dir)
     files = np.zeros((len(filenames), 15, 53))
@@ -76,14 +85,26 @@ def load_files(dir):
     return files, labels
 
 
-def make_dataset(data_im, data_ch):
+def make_dataset(data_im, labels_im, data_ch, labels_ch):
     data_im_zeros = np.zeros([len(data_im), 15, 53])
     data_ch_zeros = np.zeros([len(data_ch), 28, 28])
 
     data_1 = np.concatenate([data_im, data_ch_zeros], axis=0)
     data_2 = np.concatenate([data_im_zeros, data_ch], axis=0)
+
+    output_ch = np.zeros([len(data_im) + len(data_ch), 15, 53])
+    output_im = np.zeros([len(data_im) + len(data_ch), 28, 28])
+    for i in range(len(data_im)):
+        #output_ch are the cochleagrams that we want to have as ouput when an image is given
+        #output_im are the images that we want as output when a cochleagram is given
+        output_ch[i] = data_ch[np.random.choice(np.where(labels_ch == labels_im[i])[0])]
+
+    for i in range(len(data_im), len(data_ch)+len(data_im)):
+        output_im[i] = data_im[np.random.choice(np.where(labels_im == labels_ch[i-len(data_im)])[0])]
+
     data = [data_1, data_2]
-    return data
+    outputs = [output_im, output_ch]
+    return data, outputs
 
 
 if __name__ == '__main__':
@@ -97,15 +118,32 @@ if __name__ == '__main__':
     train_data_mnist = train_data_mnist / 255.0
     test_data_mnist = test_data_mnist / 255.0
 
-    # train_data, train_labels = make_dataset(train_data_mnist, train_label_mnist, train_data_ch, train_label_ch)
-
-    train_data, train_labels = match_data(train_data_mnist, train_label_mnist, train_data_ch, train_label_ch)
-    test_data, test_label = match_data(test_data_mnist, test_label_mnist, test_data_ch, test_label_ch)
+    train_data, train_outputs = make_dataset(train_data_mnist, train_label_mnist, train_data_ch, train_label_ch)
+    test_data, test_outputs = make_dataset(test_data_mnist, test_label_mnist, test_data_ch, test_label_ch)
 
     model = Autoencoder(latent_dim=64)
 
     model.compile(optimizer='adam',
-                  loss=tf.keras.losses.MeanSquaredError())
+                  loss=seperate_loss)
 
-    model.fit(train_data, train_data, epochs=50, shuffle=True, validation_data=(test_data, test_data))
-    test_loss = model.evaluate(test_data, test_data, verbose=2)
+    model.fit(train_data, train_outputs, epochs=50, shuffle=True, validation_data=(test_data, test_outputs))
+    test_loss = model.evaluate(test_data, test_outputs, verbose=2)
+
+    #Check results
+    #image from cochleagram as input
+    rep_im, _ = model.call([np.zeros([1, 28, 28]), test_data[1][10100:10101]])
+    #cochleagram from image as input
+    _, rep_ch = model.call([test_data[0][1:2], np.zeros([1, 15, 53])])
+
+    rep_ch = rep_ch.numpy()
+    rep_im = rep_im.numpy()
+
+    plt.imshow(test_data[0][1])
+    plt.figure()
+    plt.imshow(rep_im.reshape((28, 28)))
+    plt.figure()
+
+    plt.imshow(test_data[1][10100])
+    plt.figure()
+    plt.imshow(rep_ch.reshape((15, 53)))
+    plt.show()

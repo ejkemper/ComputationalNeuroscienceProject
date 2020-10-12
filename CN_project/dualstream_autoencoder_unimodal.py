@@ -69,7 +69,7 @@ def seperate_loss(y_true, y_pred):
     MSE = tf.reduce_mean(MSE, axis=[1, 2])
     is_input = y_true != 0
     importance = tf.math.reduce_any(is_input, axis=[1, 2])  # indicates whether any pixel in an instance is not equal to zero (meaning that it is a 'real' image
-    loss = tf.cast(importance, tf.float32) * MSE
+    loss = tf.cast(importance, tf.float32) * MSE #makes sure that only loss is used when its from the desired input. We do not care about output from empty input
     return loss
 
 
