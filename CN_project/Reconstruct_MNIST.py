@@ -19,12 +19,12 @@ class Autoencoder(Model):
         super(Autoencoder, self).__init__()
 
         self.encoder = tf.keras.Sequential([
-            keras.layers.Flatten(input_shape=(28, 28)),     # input layer
+            keras.layers.Flatten(input_shape=(28, 28)),             # input layer
             keras.layers.Dense(latent_dim, activation='sigmoid')    # encoder
         ])
         self.decoder = tf.keras.Sequential([
-            keras.layers.Dense(784, activation='sigmoid'),  # decoder
-            keras.layers.Reshape((28, 28))                   # makes vector to matrix (image)
+            keras.layers.Dense(784, activation='sigmoid'),      # decoder
+            keras.layers.Reshape((28, 28))                      # makes vector to matrix (image)
         ])
     def call(self, x):
         encoded = self.encoder(x)

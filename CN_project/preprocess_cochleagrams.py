@@ -51,7 +51,7 @@ def visualize_coch(outdir):
 if __name__ == '__main__':
     dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/cochleagrams"
     outdir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/output"
-    # filenames = load_filenames(dir)
-    # zero_pad(filenames, dir, outdir)
+    filenames = load_filenames(dir)
+    zero_pad(filenames, dir, outdir)
     visualize_coch(outdir)
     print('test')
