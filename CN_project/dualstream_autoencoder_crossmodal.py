@@ -108,7 +108,7 @@ def make_dataset(data_im, labels_im, data_ch, labels_ch):
 
 
 if __name__ == '__main__':
-    dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/output"
+    dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/output_crossmodal_AE"
     data_coch, labels_coch = load_files(dir)
     train_data_ch, test_data_ch, train_label_ch, test_label_ch = train_test_split(data_coch, labels_coch, test_size=0.2,
                                                                                   random_state=42)
