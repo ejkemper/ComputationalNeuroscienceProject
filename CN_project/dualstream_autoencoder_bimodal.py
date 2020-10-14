@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras import Model
+from Classify_latent_space import Classifier, make_dataset as make_classifier_dataset
 
 
 class Autoencoder(Model):
@@ -119,17 +120,32 @@ if __name__ == '__main__':
     model.compile(optimizer='adam',
                   loss=tf.keras.losses.MeanSquaredError())
 
-    model.fit(train_data, train_data, epochs=50, shuffle=True, validation_data=(test_data, test_data))
+    model.fit(train_data, train_data, epochs=20, shuffle=True, validation_data=(test_data, test_data))
     test_loss = model.evaluate(test_data, test_data, verbose=2)
 
-    rep_im, rep_ch = model.call([test_data[0][1:2], test_data[1][1:2]])
-    rep_im = rep_im.numpy()
-    rep_ch = rep_ch.numpy()
-    plt.imshow(test_data[0][1])
-    plt.figure()
-    plt.imshow(rep_im.reshape((28, 28)))
-    plt.figure()
-    plt.imshow(test_data[1][1])
-    plt.figure()
-    plt.imshow(rep_ch.reshape((15, 53)))
-    plt.show()
+    save_dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/models/bimodal"
+    model.save(save_dir)
+
+    # rep_im, rep_ch = model.call([test_data[0][1:2], test_data[1][1:2]])
+    # rep_im = rep_im.numpy()
+    # rep_ch = rep_ch.numpy()
+    # plt.imshow(test_data[0][1])
+    # plt.figure()
+    # plt.imshow(rep_im.reshape((28, 28)))
+    # plt.figure()
+    # plt.imshow(test_data[1][1])
+    # plt.figure()
+    # plt.imshow(rep_ch.reshape((15, 53)))
+    # plt.show()
+
+    train_data, train_labels = make_classifier_dataset(train_data_mnist, train_data_ch)
+    test_data, test_labels = make_classifier_dataset(test_data_mnist, test_data_ch)
+    classifier = Classifier(model)
+    classifier.compile(optimizer='adam',
+                       loss=keras.losses.BinaryCrossentropy(from_logits=True),
+                       # since input are values, no probabilities
+                       metrics=['accuracy'])
+
+    classifier.fit(train_data, train_labels, epochs=5, shuffle=True, validation_data=(test_data, test_labels))
+    test_loss, test_acc = classifier.evaluate(test_data, test_labels, verbose=2)
+    #The accuracy of the classifier is: train_acc = ,100% test_acc = 100%
