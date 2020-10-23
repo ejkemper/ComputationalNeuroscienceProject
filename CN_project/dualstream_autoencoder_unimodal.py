@@ -8,13 +8,13 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.manifold import TSNE
 from tensorflow.python.keras import Model
 from Classify_latent_space import Classifier, make_dataset as make_classifier_dataset
 
 
 # For the unimodal model the losses are adjusted. We train the model on one of the inputs all the time and expect it to return the input.
 # We do not care about the output of the other steam, so 2 seperate loss functions are needed.
-
 class Autoencoder(Model):
     def __init__(self):
         super(Autoencoder, self).__init__()
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     model.compile(optimizer='adam',
                   loss=seperate_loss)
 
-    model.fit(train_data, train_data, epochs=20, shuffle=True, validation_data=(test_data, test_data))
+    model.fit(train_data, train_data, epochs=10, shuffle=True, validation_data=(test_data, test_data))
     test_loss = model.evaluate(test_data, test_data, verbose=2)
 
     save_dir = "/home/esther/Documents/Uni/SB/Block7/Computational neuro/project/models/unimodal"
@@ -142,6 +142,7 @@ if __name__ == '__main__':
     # plt.imshow(rep_ch.reshape((15, 53)))
     # plt.show()
 
+    # Make new train/test split on the old test set, to avoid any ways of reusing pre-trained instances
     train_data, train_labels = make_classifier_dataset(train_data_mnist, train_data_ch)
     test_data, test_labels = make_classifier_dataset(test_data_mnist, test_data_ch)
     classifier = Classifier(model)
@@ -151,3 +152,10 @@ if __name__ == '__main__':
 
     classifier.fit(train_data, train_labels, epochs=5, shuffle=True, validation_data=(test_data, test_labels))
     test_loss, test_acc = classifier.evaluate(test_data, test_labels, verbose=2)
+
+    latent = model.encode(test_data[0], test_data[1])
+    X = latent
+    X_embedded = TSNE(n_components=2, perplexity=8, init='pca').fit_transform(X)
+    print(X_embedded.shape)
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=test_labels)
+    plt.show()
